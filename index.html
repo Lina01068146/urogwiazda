@@ -153,10 +153,6 @@
     <div class="info-line">Miejsce: Planetarium</div>
     <div class="info-line">Data: 17.02</div>
 
-    <div class="info-line">--- Szyfr Morse'a ---</div>
-
-    <div class="morse" id="morseOutput"></div>
-
   </div>
 
 </div>
@@ -164,28 +160,6 @@
 <script>
 
   const correctCode = "28";
-
-  const morseMap = {
-    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..',
-    'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
-    'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
-    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
-    'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
-    'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
-    'Y': '-.--', 'Z': '--..',
-    '0': '-----', '1': '.----', '2': '..---', '3': '...--',
-    '4': '....-', '5': '.....', '6': '-....', '7': '--...',
-    '8': '---..', '9': '----.',
-    ':': '---...', '.': '.-.-.-', ' ': '/'
-  };
-
-  function toMorse(text) {
-    return text
-      .toUpperCase()
-      .split('')
-      .map(char => morseMap[char] || '')
-      .join(' ');
-  }
 
   function typeText(element, text, speed = 30) {
     element.textContent = "";
