@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>System Dostępu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Share Tech Mono', monospace;
+      background: black;
+      color: #00ff9c;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Efekt skanowania */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,255,156,0.05),
+        rgba(0,255,156,0.05) 1px,
+        transparent 2px,
+        transparent 4px
+      );
+      pointer-events: none;
+    }
+
+    .terminal {
+      background: rgba(0, 20, 15, 0.95);
+      border: 2px solid #00ff9c;
+      border-radius: 12px;
+      padding: 25px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 30px #00ff9c55;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 10px #00ff9c55; }
+      to { box-shadow: 0 0 30px #00ff9caa; }
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .status {
+      font-size: 14px;
+      margin-bottom: 15px;
+      color: #00ffaa;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      background: black;
+      border: 1px solid #00ff9c;
+      color: #00ff9c;
+      font-family: inherit;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 10px #00ff9c;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #00ff9c;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      font-family: inherit;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #5cffc3;
+    }
+
+    .log {
+      margin-top: 15px;
+      font-size: 14px;
+      min-height: 20px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      border-top: 1px dashed #00ff9c;
+      padding-top: 15px;
+    }
+
+    .info-line {
+      margin: 6px 0;
+    }
+
+    .morse {
+      margin-top: 15px;
+      background: rgba(0,255,156,0.08);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .error {
+      color: #ff4d4d;
+    }
+  </style>
+</head>
+<body>
+
+<div class="terminal">
+
+  <h1>/// SYSTEM DOSTĘPU ///</h1>
+
+  <div class="status" id="status">Status: Oczekiwanie na autoryzację...</div>
+
+  <input type="password" id="codeInput" placeholder="Wprowadź kod dostępu">
+  <button onclick="checkCode()">AUTORYZUJ</button>
+
+  <div class="log" id="log"></div>
+
+  <div class="result" id="result">
+
+    <div class="info-line">[✓] Dostęp przyznany</div>
+    <div class="info-line">Godzina: 14:00</div>
+    <div class="info-line">Miejsce: Planetarium</div>
+    <div class="info-line">Data: 17.02</div>
+
+    <div class="info-line">--- Szyfr Morse'a ---</div>
+
+    <div class="morse" id="morseOutput"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+  const correctCode = "28";
+
+  const morseMap = {
+    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..',
+    'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
+    'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
+    'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-',
+    'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+    'Y': '-.--', 'Z': '--..',
+    '0': '-----', '1': '.----', '2': '..---', '3': '...--',
+    '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+    '8': '---..', '9': '----.',
+    ':': '---...', '.': '.-.-.-', ' ': '/'
+  };
+
+  function toMorse(text) {
+    return text
+      .toUpperCase()
+      .split('')
+      .map(char => morseMap[char] || '')
+      .join(' ');
+  }
+
+  function typeText(element, text, speed = 30) {
+    element.textContent = "";
+    let i = 0;
+
+    const interval = setInterval(() => {
+      element.textContent += text[i];
+      i++;
+
+      if (i >= text.length) clearInterval(interval);
+    }, speed);
+  }
+
+  function checkCode() {
+
+    const input = document.getElementById('codeInput').value;
+    const log = document.getElementById('log');
+    const result = document.getElementById('result');
+    const status = document.getElementById('status');
+    const morseOutput = document.getElementById('morseOutput');
+
+    result.style.display = 'none';
+
+    if (input === correctCode) {
+
+      status.textContent = "Status: Weryfikacja...";
+
+      typeText(log, "[INFO] Sprawdzanie klucza dostępu...");
+
+      setTimeout(() => {
+
+        status.textContent = "Status: Połączono";
+
+        typeText(log, "[SUCCESS] Autoryzacja zakończona powodzeniem");
+
+        result.style.display = 'block';
+
+        const infoText = "Godzina 14:00 Miejsce Planetarium Data 17.02";
+        const morse = toMorse(infoText);
+
+        morseOutput.textContent = morse;
+
+      }, 1500);
+
+    } else {
+
+      status.textContent = "Status: BŁĄD";
+      typeText(log, "[ERROR] Nieprawidłowy kod. Dostęp zablokowany.");
+
+      result.style.display = 'none';
+    }
+  }
+
+</script>
+
+</body>
+</html>
